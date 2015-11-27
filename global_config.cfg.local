@@ -1,0 +1,167 @@
+[LOGGING]
+;This section contains all the required variables that is used for logging and debugging purposes.
+application_name = analyzer
+;log_file_path = /data/www/bengreen/nbumas/data/main.log
+log_file_path = /home/urkh/proyectos/python/odesk/scripts/logs/main.log
+;log_period value may xh,xd,xw,xm,xy where x is the day number like 1d,4d,3w,7m
+;h=hour,d=day,w=week,m=month,y=year
+log_period = 10d
+
+
+[06.LiveViewInput]
+;This section contains all variables for 24h3ViewBackupScheduleInput.py file.
+file1_name = /home/urkh/proyectos/python/odesk/scripts/input/bgfile1.txt
+file2_name = /home/urkh/proyectos/python/odesk/scripts/input/bgfile2.txt
+file3_name = /home/urkh/proyectos/python/odesk/scripts/input/bgfile3.txt
+;history_file = /data/www/bengreen/nbumas/data/history.txt
+history_file = /home/urkh/proyectos/python/odesk/scripts/input/history.txt
+output_file = /home/urkh/proyectos/python/odesk/scripts/output/input.txt
+calander_file_name = /home/urkh/proyectos/python/odesk/scripts/input/calendar_date.txt
+noschedult_data_file = /home/urkh/proyectos/python/odesk/scripts/input/noschedules.txt
+inactive_policies_file_name = /home/urkh/proyectos/python/odesk/scripts/input/inactive_policy.txt
+; value used in script 24h4ViewBackupSchedule2HTML for the legend
+column_five_percentage = 20
+
+
+[07.LiveView2HTML]
+;This section contains all variables for 24h4ViewBackupSchedule2HTML.py file.
+page_title = Live View
+sorted_page_title = Live View Sorted
+input_file_name = /home/urkh/proyectos/python/odesk/scripts/input/input.txt
+output_file_name = /home/urkh/proyectos/python/odesk/scripts/output/liveview.html
+sorted_output_file_name = /home/urkh/proyectos/python/odesk/scripts/output/liveviewsortbyclient.html
+column_five_percentage = 20
+
+
+[08.LiveViewHistory2HTML]
+;This section contains all variables for 24h7ViewBackupHistory2HTML.py file.
+all_seq_file = /home/urkh/proyectos/python/odesk/scripts/input/allseq.txt
+input_file_name = /home/urkh/proyectos/python/odesk/scripts/input/history.txt
+output_directory = /home/urkh/proyectos/python/odesk/scripts/output/
+
+
+[09.HistoryView]
+;This section contains all required variables for History3ViewBackup.py file.
+data_age_in_years = 10
+history_data_file = /data/www/bengreen/nbumas/data/history.txt
+history_all_data_file = /data/www/bengreen/nbumas/data/historyall.txt
+output_data_file = /data/www/bengreen/nbumas/data/history_all_updated.txt
+existing_policies_file = /data/www/bengreen/nbumas/data/existing_policies.txt
+policies_archived = /data/www/bengreen/nbumas/data/historyarchives.txt
+
+
+[10.HistoryView2HTML]
+;This section contains all variables for History4ViewBackupHistory2HTML.py file.
+default_page_title = History View
+monthview_page_title = Monthly View
+weekview_page_title = Weekly View
+;history_all_file_path = /data/www/bengreen/nbumas/data/historyallsorted.txt
+history_all_file_path = /home/urkh/proyectos/python/odesk/scripts/input/historyallsorted.txt
+;earliest_date_file_path = /data/www/bengreen/nbumas/data/earliest_date.txt
+earliest_date_file_path = /home/urkh/proyectos/python/odesk/scripts/input/earliest_date.txt
+;default_output_file_path = /data/www/bengreen/nbumas/historyview.html
+default_output_file_path = /home/urkh/proyectos/python/odesk/scripts/output/historyview.html
+monthview_output_path =/home/urkh/proyectos/python/odesk/scripts/output/monthlyview.html
+weekview_output_path = /home/urkh/proyectos/python/odesk/scripts/output/weeklyview.html
+;csv_default_file_path = /data/www/bengreen/nbumas/reports/historyview.csv
+csv_default_file_path = /home/urkh/proyectos/python/odesk/scripts/output/reports/historyview.csv
+csv_monthview_file_path = /home/urkh/proyectos/python/odesk/scripts/output/reports/monthlyview.csv
+csv_weekview_file_path = /home/urkh/proyectos/python/odesk/scripts/output/reports/weeklyview.csv
+csv_report_path_default = reports/historyview.csv
+csv_report_path_monthly = reports/monthlyview.csv
+csv_report_path_weekly = reports/weeklyview.csv
+;noschedules_data_file = /data/www/bengreen/nbumas/data/noschedules.txt
+noschedules_data_file = /home/urkh/proyectos/python/odesk/scripts/input/noschedules.txt
+;inactive_policies_data_file = /data/www/bengreen/nbumas/data/inactive_policy.txt
+inactive_policies_data_file = /home/urkh/proyectos/python/odesk/scripts/input/inactive_policy.txt
+kpi_threshold = 95
+month_view_days_count = 28
+week_view_days_count = 7
+
+
+[11.PolicyManager]
+;This section contains all variables for PolicyManager.py file.
+page_title = Policy Configuration
+alarm_file_path = /data/www/bengreen/nbumas/data/alarms.txt
+csv_report_file_path = reports/policyconfignew.csv
+all_policies_file_path = /data/www/bengreen/nbumas/reports/policyconfig.csv
+output_html_file = /data/www/bengreen/nbumas/policyconfig.html
+calendar_policy_file = /data/www/bengreen/nbumas/data/calendar_policy.txt
+policy_calendar_html_dir = /nbumas/
+kpi_threshold = 95
+
+
+[12.PolicyCalendar]
+;This section contains all variables for PolicyCalendar2HTML.py file.
+default_page_title = Policy Calendar
+csv_report_file_path = reports/
+policy_calendar_file = /data/www/bengreen/nbumas/data/calendar_policy.txt
+default_html_output_directory = /data/www/bengreen/nbumas
+default_csv_output_directory = /data/www/bengreen/nbumas/reports
+;to view only current month set previous_month and next_month to 0
+previous_month = 1
+next_month = 1
+
+
+[13.BackupSize2HTML]
+;This section contains all variables for BackupSize2HTML.py file.
+default_page_title = Backup Size
+report_size_count = 31
+variance_value = 10
+
+history_file_path = /home/urkh/proyectos/python/odesk/scripts/input/history.txt
+output_html_path_default = /home/urkh/proyectos/python/odesk/scripts/output/backupsize.html
+output_csv_path_default = /home/urkh/proyectos/python/odesk/scripts/output/reports/backupsize.csv
+csv_report_path_default = reports/backupsize.csv
+
+
+[15.CatalogHistory]
+;This section contains all variables for CatalogHistory.py file.
+dashboard_catalog_live_file_path = /data/www/bengreen/nbumas/data/dashboard-catalog-live.txt
+dashboard_catalog_all_file_path = /data/www/bengreen/nbumas/data/dashboard-catalog-all.txt
+dashboard_tmp_file_path = /data/www/bengreen/nbumas/data/dashboard-catalog-tmp-all.txt
+
+
+[16.Catalog2HTML]
+;This section contains all variables for Catalog2HTML.py file
+default_page_title = Catalog
+dashboard_files_dir = /data/www/bengreen/nbumas/data
+default_html_output_file_path = /data/www/bengreen/nbumas/catalog.html
+
+
+[17.BackupWriteTime2HTML]
+;This section contains all variables for BackupWriteTime2HTML.py file
+default_page_title = Backup Write Time
+dashboard_files_dir = /data/www/bengreen/nbumas/data
+default_html_output_file_path = /data/www/bengreen/nbumas/backupwritetime.html
+
+
+[18.Billing]
+;This section contains all variables and file path for Billing.py file paths.
+
+backup_contract_file_path = /home/urkh/proyectos/python/odesk/scripts/input/manage_backup_contract.txt
+backup_customer_file_path = /home/urkh/proyectos/python/odesk/scripts/input/manage_backup_customer.txt
+backup_usage_file_path = /home/urkh/proyectos/python/odesk/scripts/input/manage_backup_usage.txt
+all_seq_file_path = /home/urkh/proyectos/python/odesk/scripts/input/allseq.txt
+billing_file_path = /home/urkh/proyectos/python/odesk/scripts/output/billing.html
+csv_report_path_default = reports/billing.csv
+output_csv_path_default = /home/urkh/proyectos/python/odesk/scripts/output/reports/billing.csv
+
+;variables.
+page_title = Billing
+value_undefined = Not Defined
+backup_capacity_default = 0
+additional_backup_capacity_default = 0
+additional_backup_price_per_gb_default = 0.5
+backup_usage_default = 0
+total_backup_capacity_default = 0
+total_backup_usage_default = 0
+total_backup_quota_default = 0
+bill_eoros_default = 0
+
+
+[19.MainIndex]
+;This section contains all variables for MainIndex.py file
+default_page_title = Main Index
+dashboard_files_dir = /data/www/bengreen/nbumas/data
+default_html_output_file_path = /data/www/bengreen/nbumas/index.html
