@@ -34,6 +34,7 @@ month_view_days_count = config_vars.get('month_view_days_count')
 week_view_days_count = config_vars.get('week_view_days_count')
 
 app_logger = LoggingManager('10.HistoryView2HTML.py')
+dformat = '%Y-%m-%d %H:%M:%S'
 
 class HtmlGeneratorHistoryAll:
     def __init__(self):
@@ -174,13 +175,15 @@ class HtmlGeneratorHistoryAll:
 
         earliest_date = None
         #if view_type == 'default':
+        dt = datetime.now()
+
         with open(earliest_date_file_name,'r') as f:
             data = f.read()
             if data:
                 earliest_date = data.replace('\n','').strip()
 
         if not earliest_date:
-            print 'Earliest date not found. Program exiting...'
+            print '%s ERROR 10.HistoryView2HTML.py  Earliest date not found. Program exiting...' % dt.strftime(dformat)
             app_logger.log_error('Earliest date not found in %s.' % earliest_date_file_name)
             print 'Program exiting...'
             return
@@ -188,7 +191,7 @@ class HtmlGeneratorHistoryAll:
         try:
             earliest_date = datetime.strptime(earliest_date,'%Y-%m-%d %H:%M:%S')
         except Exception,msg:
-            print 'Invalid earliest date %s given.' % earliest_date
+            print '%s ERROR 10.HistoryView2HTML.py  Invalid earliest date %s given.' % (dt.strftime(dformat), earliest_date)
             app_logger.log_error('Invalid earliest date %s given.' % earliest_date)
             print 'Program exiting...'
             return
@@ -368,7 +371,8 @@ class HtmlGeneratorHistoryAll:
         rows = []
 
         for i,(last_line_read,lines,seq_name) in enumerate(self.read_sequence_in_chunks(large_file,last_line_read)):
-            print 'Entered sequence %s' % seq_name
+            dt = datetime.now()
+            print '%s INFO 10.HistoryView2HTML.py  Entered sequence %s' % (dt.strftime(dformat), seq_name)
             app_logger.log_info('Entered sequence %s' % seq_name)
 
             live_data_exist = check_for_livedata(lines)
@@ -519,27 +523,29 @@ class HtmlGeneratorHistoryAll:
 
         html += """\n</table>"""
         html += self.read_static_html_part_lower()
-
-        print 'Output is saving to: %s' % output_file_name
+        dt = datetime.now()
+        print '%s INFO 10.HistoryView2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), output_file_name)
         app_logger.log_info('Output is saving to: %s' % output_file_name)
 
         with open(output_file_name,'w') as output_file:
             output_file.write(html)
 
-        print 'Output saved.'
+        dt = datetime.now()
+        print '%s INFO 10.HistoryView2HTML.py  Output saved.' % dt.strftime(dformat)
         app_logger.log_info('Output saved.')
 
         if not output_csv_file_name.endswith('.csv'):
             output_csv_file_name = output_csv_file_name+'.csv'
 
-        print 'Output is saving to: %s' % output_csv_file_name
+        print '%s INFO 10.HistoryView2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), output_csv_file_name)
         app_logger.log_info('Output is saving to: %s' % output_csv_file_name)
 
         with open(output_csv_file_name, 'w') as fp:
             a = csv.writer(fp, delimiter=',')
             a.writerows(csv_contents)
 
-        print 'Output saved.'
+        dt = datetime.now()
+        print '%s INFO 10.HistoryView2HTML.py  Output saved.' % dt.strftime(dformat)
         app_logger.log_info('Output saved.')
 
         large_file.close()
@@ -550,67 +556,68 @@ def run_main():
 
     :return:
     """
+    dt = datetime.now()
     if not default_page_title:
-        print 'Default page title is not set.'
+        print '%s WARNING 10.HistoryView2HTML.py  Default page title is not set.' % dt.strftime(dformat)
         app_logger.log_warning('Default page title is not set!')
 
     if not monthview_page_title:
-        print 'Month view page title is not set.'
+        print '%s WARNING 10.HistoryView2HTML.py  Month view page title is not set.' % dt.strftime(dformat)
         app_logger.log_warning('Month view page title is not set!')
 
     if not weekview_page_title:
-        print 'Week view page title is not set.'
+        print '%s WARNING 10.HistoryView2HTML.py  Week view page title is not set.' % dt.strftime(dformat)
         app_logger.log_warning('Week view page title is not set!')
 
     if not os.path.isfile(history_all_file_path):
-        print '%s is not a valid file.' % history_all_file_path
+        print '%s ERROR 10.HistoryView2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), history_all_file_path)
         app_logger.log_error('%s is not a valid file.' % history_all_file_path)
         print 'Exiting program...'
         return
 
     if not os.path.isfile(earliest_date_file_path):
-        print '%s is not a valid file.' % earliest_date_file_path
+        print '%s ERROR 10.HistoryView2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), earliest_date_file_path)
         app_logger.log_error('%s is not a valid file.' % earliest_date_file_path)
         print 'Exiting program...'
         return
     if not os.path.isfile(noschedules_data_file_path):
-        print '%s is not a valid file.' % noschedules_data_file_path
+        print '%s ERROR 10.HistoryView2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), noschedules_data_file_path)
         app_logger.log_error('%s is not a valid file.' % noschedules_data_file_path)
         print 'Exiting program...'
         return
 
     if not os.path.isfile(inactive_policies_data_file_path):
-        print '%s is not a valid file.' % inactive_policies_data_file_path
+        print '%s ERROR 10.HistoryView2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), inactive_policies_data_file_path)
         app_logger.log_error('%s is not a valid file.' % inactive_policies_data_file_path)
         print 'Exiting program...'
         return
 
     if not kpi_threshold:
-        print 'No KPI value found in the config file.'
+        print '%s ERROR 10.HistoryView2HTML.py  No KPI value found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('No KPI value found in the config file.')
         print 'Exiting program...'
         return
     if not month_view_days_count:
-        print 'Month view days count not found in the config file.'
+        print '%s ERROR 10.HistoryView2HTML.py  Month view days count not found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Month view days count not found in the config file.')
         print 'Exiting program...'
         return
     if not week_view_days_count:
-        print 'Week view days count not found in the config file.'
+        print '%s ERROR 10.HistoryView2HTML.py  Week view days count not found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Week view days count not found in the config file.')
         print 'Exiting program...'
         return
     try:
         int(month_view_days_count)
     except Exception,msg:
-        print 'Invalid month view days count found in the config file.'
+        print '%s ERROR 10.HistoryView2HTML.py  Invalid month view days count found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Invalid month view days count found in the config file.')
         print 'Exiting program...'
         return
     try:
         int(week_view_days_count)
     except Exception,msg:
-        print 'Invalid week view days count found in the config file.'
+        print '%s ERROR 10.HistoryView2HTML.py  Invalid week view days count found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Invalid week view days count found in the config file.')
         print 'Exiting program...'
         return
@@ -618,7 +625,7 @@ def run_main():
         try:
             int(kpi_threshold)
         except Exception,msg:
-            print 'Invalid KPI value found in the config file.'
+            print '%s ERROR 10.HistoryView2HTML.py  Invalid KPI value found in the config file.' % dt.strftime(dformat)
             app_logger.log_error('Invalid KPI value found in the config file.')
             print 'Exiting program...'
             return
@@ -630,7 +637,8 @@ def run_main():
         html_generator_historyall_obj.generate_html_page(monthview_page_title,history_all_file_path,earliest_date_file_path,monthview_output_file_path,view_type='month',output_csv_file_name=csv_monthview_file_path,csv_report_file_name=csv_report_path_monthly,noschedule_file_path=noschedules_data_file_path)
         html_generator_historyall_obj.generate_html_page(weekview_page_title,history_all_file_path,earliest_date_file_path,weekview_output_file_path,view_type='week',output_csv_file_name=csv_weekview_file_path,csv_report_file_name=csv_report_path_weekly,noschedule_file_path=noschedules_data_file_path)
     except Exception,msg:
-        print 'Exception occured inside generate_html_page() method. Exception message: %s' % str(msg)
+        dt = datetime.now()
+        print '%s ERROR 10.HistoryView2HTML.py  Exception occured inside generate_html_page() method. Exception message: %s' % (dt.strftime(dformat), str(msg))
         app_logger.log_error('Exception occured inside generate_html_page() method. Exception message: %s' % str(msg))
         print 'Exiting program...'
 
@@ -638,20 +646,26 @@ def unix_time(dt):
     return int(time.mktime(dt.timetuple()))
 
 if __name__ == '__main__':
-    print 'Program is starting...'
+    dt = datetime.now()
+    print '%s INFO 10.HistoryView2HTML.py  Program is starting...' % dt.strftime(dformat)
     app_logger.log_info('Program is starting...')
-    print 'Started running...'
+    print '%s INFO 10.HistoryView2HTML.py  Started running...' %dt.strftime(dformat)
     app_logger.log_info('Started running...')
     dt = datetime.now()
     start_time = unix_time(dt)
-
-    run_main()
+    
+    try:
+        run_main()
+    except:
+        dt = datetime.now()
+        print '%s ERROR 10.HistoryView2HTML.py  Script didn\'t complete successfully.' % dt.strftime(dformat)
+        app_logger.log_error('Script didn\'t complete successfully.')
 
     dt = datetime.now()
     end_time = unix_time(dt)
 
-    print 'Time to run %s seconds.' % str(end_time-start_time)
+    print '%s INFO 10.HistoryView2HTML.py  Time to run %s seconds.' % (dt.strftime(dformat), str(end_time-start_time))
     app_logger.log_info('Time to run %s seconds.' % str(end_time-start_time))
 
-    print 'Ended running...'
+    print '%s INFO 10.HistoryView2HTML.py  Ended running...' % dt.strftime(dformat)
     app_logger.log_info('Ended running...')
