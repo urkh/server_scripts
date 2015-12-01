@@ -31,6 +31,7 @@ billing_file_path = config_vars.get('billing_file_path')
 output_csv_path_default = config_vars.get("output_csv_path_default")
 
 app_logger = LoggingManager('18.Billing.py')
+dformat = '%Y-%m-%d %H:%M:%S'
 
 class FileProcessor(object):
     def __init__(self):
@@ -242,7 +243,8 @@ class FileProcessor(object):
                         try:
                             total_backup_capacity = calculate_total_backup_capacity(float(default_backup_capacity),1,float(additional_backup_capacity))
                         except Exception,msg:
-                            print "Exception occured while calculating total backup capacity."
+                            dt = datetime.now()
+                            print "%s WARNING 18.Billing.py  Exception occured while calculating total backup capacity." % dt.strftime(dformat)
                             app_logger.log_warning("Exception occured while calculating total backup capacity.")
 
                     total_backup_usage = backup_usage_val
@@ -256,7 +258,8 @@ class FileProcessor(object):
                         try:
                             total_backup_quota = float(total_backup_capacity) - float(total_backup_usage)
                         except Exception,msg:
-                            print "Exception ocured while calculating total backup quota."
+                            dt = datetime.now()
+                            print "%s WARNING 18.Billing.py  Exception ocured while calculating total backup quota." % dt.strftime(dformat)
                             app_logger.log_warning("Exception ocured while calculating total backup quota.")
 
                     bill_euros = 0
@@ -267,7 +270,8 @@ class FileProcessor(object):
                             try:
                                 bill_euros = float(total_backup_quota) * float(additional_backup_price_per_gb) * -1
                             except Exception,msg:
-                                print "Exception occured while calculating backup quota."
+                                dt = datetime.now()
+                                print "%s WARNING 18.Billing.py  Exception occured while calculating backup quota." % dt.strftime(dformat)
                                 app_logger.log_warning("Exception occured while calculating backup quota.")
                     cust_entries[cust_id] = {
                         "p_s_u": p_s_u,

@@ -23,6 +23,7 @@ output_csv_file_default = config_vars.get('output_csv_path_default')
 csv_report_path_default = config_vars.get('csv_report_path_default')
 
 app_logger = LoggingManager('13.BackupSize2HTML.py')
+dformat = '%Y-%m-%d %H:%M:%S'
 
 class BackupSize2HTMLGenerator:
     def __init__(self):
@@ -442,57 +443,61 @@ class BackupSize2HTMLGenerator:
         html += html_table
 
         html += self.get_static_lower_html(variance_value)
+        dt = datetime.now()
 
-        print 'Output is saving to: %s' % output_html_file_default
+        print '%s INFO 13.BackupSize2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), output_html_file_default)
         app_logger.log_info('Output is saving to: %s' % output_html_file_default)
 
         with open(output_html_file_default,'w') as output_file:
             output_file.write(html)
 
-        print 'Output is saved.'
+        dt = datetime.now()
+        print '%s INFO 13.BackupSize2HTML.py  Output is saved.' % dt.strftime(dformat)
         app_logger.log_info('Output is saved.')
 
         csv_file_path = output_csv_file_default
         if not csv_file_path.endswith('.csv'):
             csv_file_path = csv_file_path+'.csv'
 
-        print 'Output is saving to: %s' % csv_file_path
+        print '%s INFO 13.BackupSize2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), csv_file_path)
         app_logger.log_info('Output is saving to: %s' % csv_file_path)
 
         with open(csv_file_path, 'w') as fp:
             a = csv.writer(fp, delimiter=',')
             a.writerows(csv_contents)
 
-        print 'Output is saved.'
+        dt = datetime.now()
+        print '%s INFO 13.BackupSize2HTML.py  Output is saved.' % dt.strftime(dformat)
         app_logger.log_info('Output is saved.')
 
 
 def run_main():
+    dt = datetime.now()
     if not default_page_title:
-        print 'Default page title is not set.'
+        print '%s WARNING 13.BackupSize2HTML.py  Default page title is not set.' % dt.strftime(dformat)
         app_logger.log_warning('Default page title is not set!')
 
     if not os.path.isfile(history_file_path):
-        print '%s is not a valid file.' % history_file_path
+        print '%s ERROR 13.BackupSize2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), history_file_path)
         app_logger.log_error('%s is not a valid file.' % history_file_path)
-        print 'Exiting program...'
+        print '%s INFO 13.BackupSize2HTML.py  Exiting program...' % dt.strftime(dformat)
         app_logger.log_info('Exiting program...')
         return
     try:
         int(report_size_count)
     except Exception,msg:
-        print 'Invalid report size count found in the config file.'
+        print '%s ERROR 13.BackupSize2HTML.py  Invalid report size count found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Invalid report size count found in the config file.')
-        print 'Exiting program...'
+        print '%s INFO 13.BackupSize2HTML.py  Exiting program...' % dt.strftime(dformat)
         app_logger.log_info('Exiting program...')
         return
 
     try:
         int(variance_value)
     except Exception,msg:
-        print 'Invalid variance value found in the config file.'
+        print '%s ERROR 13.BackupSize2HTML.py  Invalid variance value found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Invalid variance value found in the config file.')
-        print 'Exiting program...'
+        print '%s INFO 13.BackupSize2HTML.py  Exiting program...' % dt.strftime(dformat)
         app_logger.log_info('Exiting program...')
         return
 
@@ -504,20 +509,26 @@ def unix_time(dt):
     return int(time.mktime(dt.timetuple()))
 
 if __name__ == '__main__':
-    print 'Program is starting...'
+    dt = datetime.now()
+    print '%s INFO 13.BackupSize2HTML.py  Program is starting...' % dt.strftime(dformat)
     app_logger.log_info('Program is starting...')
-    print 'Started running...'
+    print '%s INFO 13.BackupSize2HTML.py  Started running...' % dt.strftime(dformat)
     app_logger.log_info('Started running...')
     dt = datetime.now()
     start_time = unix_time(dt)
 
-    run_main()
+    try:
+        run_main()
+    except:
+        dt = datetime.now()
+        print '%s ERROR 13.BackupSize2HTML.py  Script didn\'t complete successfully.' % dt.strftime(dformat)
+        app_logger.log_error('Script didn\'t complete successfully.')
 
     dt = datetime.now()
     end_time = unix_time(dt)
 
-    print 'Time to run %s seconds.' % str(end_time-start_time)
+    print '%s INFO 13.BackupSize2HTML.py  Time to run %s seconds.' % (dt.strftime(dformat), str(end_time-start_time))
     app_logger.log_info('Time to run %s seconds.' % str(end_time-start_time))
 
-    print 'Ended running...'
+    print '%s INFO 13.BackupSize2HTML.py  Ended running...' % dt.strftime(dformat)
     app_logger.log_info('Ended running...')

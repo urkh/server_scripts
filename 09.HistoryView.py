@@ -402,6 +402,7 @@ if __name__ == '__main__':
     try:
         run_main()
     except:
+        dt = datetime.now()
         print '%s ERROR 09.HistoryView.py  Script didn\'t complete successfully.' % dt.strftime(dformat)
         app_logger.log_error('Script didn\'t complete successfully.')
 
