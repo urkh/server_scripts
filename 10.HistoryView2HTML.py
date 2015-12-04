@@ -28,6 +28,7 @@ csv_report_path_default = config_vars.get('csv_report_path_default')
 csv_report_path_monthly = config_vars.get('csv_report_path_monthly')
 csv_report_path_weekly = config_vars.get('csv_report_path_weekly')
 noschedules_data_file_path = config_vars.get('noschedules_data_file')
+nopolicy_data_file_path = config_vars.get('nopolicy_data_file')
 inactive_policies_data_file_path = config_vars.get('inactive_policies_data_file')
 kpi_threshold = config_vars.get('kpi_threshold')
 month_view_days_count = config_vars.get('month_view_days_count')
@@ -172,6 +173,13 @@ class HtmlGeneratorHistoryAll:
         """ First read the lowest date from earliest_date.txt file which contains the date as 2014-06-20 03:01:01 format. """
 
         csv_contents = []
+        nopolicy_data = open(nopolicy_data_file_path, 'r').readlines()
+        temp_nopolicy_data = []
+        for nop in nopolicy_data:
+            temp_nopolicy_data.append({'policy': nop.split(',')[0] + ',' + nop.split(',')[1], 'policy_date': datetime.fromtimestamp(int(nop.split(',')[2])).strftime('%Y-%m-%d')})
+
+
+        #import ipdb; ipdb.set_trace()
 
         earliest_date = None
         #if view_type == 'default':
@@ -312,6 +320,8 @@ class HtmlGeneratorHistoryAll:
 
         csv_contents += [csv_header_row]
 
+        pol_status = ''
+
         def get_value_for_date(policy_name,server_name,lines,target_date):
             value = 'NoExist'
             line = ''
@@ -357,6 +367,7 @@ class HtmlGeneratorHistoryAll:
                                 for pcy_server_row in pcy_server_rows:
                                     if pcy_server_row[0] == policy_name and pcy_server_row[1] == server_name:
                                         value = 'HInactive'
+                                        pol_status = value
                         line = aline
             return value,line
 
@@ -438,20 +449,41 @@ class HtmlGeneratorHistoryAll:
             policy_name = seq_name.split('-')[0]
             server_name = seq_name.split('-')[1]
 
+            #policy_to_find = policy_name + ', ' + '-'.join(seq_name_split[1:])
+            policy_to_find = policy_name + ', ' + server_name
+
+            strf_dates = [x.strftime('%Y-%m-%d') for x in dates]
+            pol_found = False
+
             """ Now we have unique lines in sequence lines. """
             for i,each_col_date in enumerate(dates):
-                calc_value = get_value_for_date(policy_name,server_name,unique_items,each_col_date)
+
+                calc_value = get_value_for_date(policy_name, server_name, unique_items, each_col_date)
+                
+                if any(x['policy'] == policy_to_find for x in temp_nopolicy_data) and {'policy':policy_to_find, 'policy_date':strf_dates[i]} in temp_nopolicy_data:
+                    calc_value = list(calc_value)
+                    #import ipdb; ipdb.set_trace()
+                    calc_value[0] = 'HNoPolicy'
+                    calc_value = tuple(calc_value)
+                    pol_found = True
+
                 row += [calc_value[0]]
                 value_lines[i] = calc_value
 
-            total_count = row.count('HFull') + row.count('ExpHFull') + row.count('HIncr') + row.count('ExpHIncr') + row.count('HNoBackup')
+            if pol_found:
+                total_count = row.count('HNoPolicy')
+            else:
+                total_count = row.count('HFull') + row.count('ExpHFull') + row.count('HIncr') + row.count('ExpHIncr') + row.count('HNoBackup')
             fresh_count = row.count('HFull') + row.count('ExpHFull') + row.count('HIncr') + row.count('ExpHIncr')
+            #import ipdb; ipdb.set_trace()
 
+            # calculate the kpi
             kpi_val = 100
             try:
                 kpi_val = int((float(fresh_count)/total_count) * 100)
-            except Exception,msg:
+            except Exception:
                 pass
+            
 
             kpi_value = """%s%%""" % (str(kpi_val))
             kpi_class = """KPINOK"""
@@ -484,22 +516,39 @@ class HtmlGeneratorHistoryAll:
 
             csv_data_row = [seq_name_split[0].strip(),'-'.join(seq_name_split[1:]),kpi_value,backup_size_gb]
 
+            
+
+
+
+
+            #import ipdb; ipdb.set_trace()
             for i,value in enumerate(row):
                 data_line_val = value_lines.get(i)
                 data_line = data_line_val[1]
+
                 if value == 'NoExist':
                     row_str += """\n<td class="NoData">-</td>"""
                     csv_data_row += ['NoData']
                 elif value == 'HNoBackup':
                     row_str += """\n<td class="HNoBackup">-</td>"""
                     csv_data_row += ['NoBackup']
+ 
+                #elif any(x['policy'] == policy_to_find for x in temp_nopolicy_data) and {'policy':policy_to_find, 'policy_date':strf_dates[i]} in temp_nopolicy_data:
+                elif value == 'HNoPolicy':
+                    row_str += """\n<td class="HNoPolicy">-</td>"""
+                    csv_data_row += ['NoPolicy']
+                    #else:
                 elif value == 'HNoSchedule':
                     row_str += """\n<td class="HNoSchedule">-</td>"""
                     csv_data_row += ['NoSchedule']
                 elif value == 'HNoNewBackup':
                     row_str += """\n<td class="HNoNewBackup">-</td>"""
                     csv_data_row += ['NoNewBackup']
+                elif value == 'HInactive':
+                    row_str += """\n<td class="HInactive">-</td>"""
+                    csv_data_row += ['HInactive']
                 else:
+                    #import ipdb; ipdb.set_trace()
                     #row_str += """\n<td class="%s">-</td>""" % (value)
                     data_line = data_line.replace('\n','')
                     data_line_split = data_line.split(',')

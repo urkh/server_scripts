@@ -92,10 +92,11 @@ class CatalogHistory:
 
         """ Now delete old dashboard-catalog-live.txt file and rename dashboard-catalog-all-temp.txt to dashboard-catalog-all.txt """
         try:
+            #import ipdb; ipdb.set_trace()
             print '%s INFO 15.CatalogHistory.py  Delete file: %s' % (dt.strftime(dformat), dashboard_catalog_all_file_path)
             app_logger.log_info('Delete file: %s' % dashboard_catalog_all_file_path)
             os.remove(dashboard_catalog_all_file_path)
-            print '%s INFO 15.CatalogHistory.py  Rename %s to %s' % (dt.strftime(dformat), (dashboard_catalog_tmp_file_path,dashboard_catalog_all_file_path))
+            print '%s INFO 15.CatalogHistory.py  Rename %s to %s' % (dt.strftime(dformat), dashboard_catalog_tmp_file_path,dashboard_catalog_all_file_path)
             app_logger.log_info('Rename %s to %s' % (dashboard_catalog_tmp_file_path,dashboard_catalog_all_file_path))
             os.rename(dashboard_catalog_tmp_file_path,dashboard_catalog_all_file_path)
         except Exception,msg:

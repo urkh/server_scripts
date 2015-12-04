@@ -6,46 +6,48 @@ __author__ = 'Codengine'
 import time
 from datetime import datetime
 import os
-from LoggingManager import *
-from GlobalConfig import *
+from LoggingManager import LoggingManager
+from GlobalConfig import GlobalConfig
 
 config_vars = GlobalConfig.read_vars('19.MainIndex')
 
 default_page_title = config_vars.get('default_page_title')
-dashboard_files_dir = config_vars.get('dashboard_files_dir')
+#dashboard_files_dir = config_vars.get('dashboard_files_dir')
 default_html_output_file_path = config_vars.get('default_html_output_file_path')
+timetorun_file = config_vars.get('timetorun_file')
 
 app_logger = LoggingManager('19.MainIndex.py')
 
 # Policy Type
-dashboard_policy_type = 'dashboard-policy-type.txt'
+dashboard_policy_type = config_vars.get('dashboard_policy_type')
 
 # Billing
-dashboard_billing_file = 'dashboard-billing.txt'
+dashboard_billing_file = config_vars.get('dashboard_billing_file')
 
 # Open Actions
-dashboard_liveview_file = 'dashboard-liveview.txt'
-dashboard_historyview_file = 'dashboard-historyview.txt'
-dashboard_monthly_view_file = 'dashboard-monthlyview.txt'
-dashboard_weeklyview_file = 'dashboard-weeklyview.txt'
-dashboard_backup_variance_file = 'dashboard-backupvariance.txt'
-dashboard_notdefined_file = 'dashboard-notdefined.txt'
+dashboard_liveview_file = config_vars.get('dashboard_liveview_file')
+dashboard_historyview_file = config_vars.get('dashboard_historyview_file')
+dashboard_monthly_view_file = config_vars.get('dashboard_monthly_view_file')
+dashboard_weeklyview_file = config_vars.get('dashboard_weeklyview_file')
+dashboard_backup_variance_file = config_vars.get('dashboard_backup_variance_file')
+dashboard_notdefined_file = config_vars.get('dashboard_notdefined_file')
 
 # Infrastructure Details
-dashboard_policy_file = 'dashboard-policy.txt'
-dashboard_uniqclient_file = 'dashboard-uniqclient.txt'
-dashboard_backup_client_file = 'dashboard-backupclient.txt'
-dashboard_backup_size_file = 'dashboard-backupsize.txt'
-dashboard_catalog_file = 'dashboard-catalog.txt'
-dashboard_backuptime_file = 'dashboard-backuptime.txt'
+dashboard_policy_file = config_vars.get('dashboard_policy_file')
+dashboard_uniqclient_file = config_vars.get('dashboard_uniqclient_file')
+dashboard_backup_client_file = config_vars.get('dashboard_backup_client_file')
+dashboard_backup_size_file = config_vars.get('dashboard_backup_size_file')
+dashboard_catalog_file = config_vars.get('dashboard_catalog_file')
+dashboard_backuptime_file = config_vars.get('dashboard_backuptime_file')
 
 # Backup Issues
-dashboard_backup_issue = 'dashboard-backupissue.txt'
+dashboard_backup_issue = config_vars.get('dashboard_backup_issue')
 
 # Backup Usage
-dashboard_backup_usage = 'dashboard-backupusage.txt'
-dformat = '%Y-%m-%d %H:%M:%S'
+dashboard_backup_usage = config_vars.get('dashboard_backup_usage')
 
+
+#import ipdb; ipdb.set_trace()
 class MainIndex:
     def __init__(self):
         pass
@@ -53,6 +55,7 @@ class MainIndex:
     def get_static_html_page_upper(self,page_title):
 
         timenow = datetime.now().strftime('%a %Y-%m-%d %H:%M:%S')
+        _timetorun = open(timetorun_file, 'r').readlines()[-1]
 
         html = """<!DOCTYPE html>\n<html>"""
         html += """\n   <head>"""
@@ -63,6 +66,13 @@ class MainIndex:
         html += """\n   <body>"""
         html += """\n       <div style="visibility: hidden; position: absolute; overflow: hidden; padding: 0px; width: auto; left: 0px; top: 0px; z-index: 1010;" id="WzTtDiV"></div>"""
         html += """\n       <header>"""
+        html += """\n           <table class="BackupTimeRun" align="right">"""
+        html += """\n               <tbody>"""
+        html += """\n                   <tr>"""
+        html += """\n                       <td> Time to Run:<br>""" + _timetorun + """</td>"""
+        html += """\n                   </tr>"""
+        html += """\n               </tbody>"""
+        html += """\n           </table>"""
         html += """\n           <table class="BackupDataTime" align="right">"""
         html += """\n               <tbody>"""
         html += """\n                   <tr>"""
@@ -98,8 +108,8 @@ class MainIndex:
         table_tr = """"""
 
         contents = []
-        file_path = os.path.join(dashboard_files_dir,file_name)
-        with open(file_path,'r') as f:
+        #file_path = os.path.join(dashboard_files_dir,file_name)
+        with open(file_name,'r') as f:
             contents = f.readlines()
 
         contents = [line.replace('\n','').strip() for line in contents]
@@ -229,7 +239,7 @@ class MainIndex:
         html_data_table += """\n                <tr>"""
         html_data_table += """\n                    <td class="polconfighead">Date / Time</td>"""
         html_data_table += """\n                    <td class="polconfighead">Description</td>"""
-        html_data_table += """\n                    <td class="polconfighead">Open Actions</td>"""
+        html_data_table += """\n                    <td class="polconfighead">To Bill in Euros</td>"""
         html_data_table += """\n                    <td class="polconfighead">Files Download</td>"""
         #html_data_table += """\n                    <td class="polconfighead">Graphs</td>"""
         html_data_table += """\n                </tr>"""
@@ -260,8 +270,8 @@ class MainIndex:
         html_data_table += """\n                </tr>"""
 
         backup_issue_lines = []
-        file_path = os.path.join(dashboard_files_dir,dashboard_backup_issue)
-        with open(file_path,'r') as f:
+        #file_path = os.path.join(dashboard_files_dir,dashboard_backup_issue)
+        with open(dashboard_backup_issue, 'r') as f:
             backup_issue_lines = f.readlines()
 
         class_name = "polconfig1"
@@ -286,8 +296,8 @@ class MainIndex:
 
         return html_data_table
 
-    def generate_data_tables(self):
-        tables = """"""
+    #def generate_data_tables(self):
+    #    tables = """"""
 
 
     def generate_data_table_four(self):
@@ -308,8 +318,8 @@ class MainIndex:
         html_data_table += """\n                </tr>"""
 
         backup_usage_lines = []
-        file_path = os.path.join(dashboard_files_dir,dashboard_backup_usage)
-        with open(file_path,'r') as f:
+        #file_path = os.path.join(dashboard_files_dir,dashboard_backup_usage)
+        with open(dashboard_backup_usage,'r') as f:
             backup_usage_lines = f.readlines()
 
         class_name = "polconfig1"
@@ -334,8 +344,8 @@ class MainIndex:
 
         return html_data_table
 
-    def generate_data_tables(self):
-        tables = """"""
+    #def generate_data_tables(self):
+    #    tables = """"""
 
 
     def generate_data_table_five(self):
@@ -355,8 +365,8 @@ class MainIndex:
         html_data_table += """\n                </tr>"""
 
         policy_type_lines = []
-        file_path = os.path.join(dashboard_files_dir,dashboard_policy_type)
-        with open(file_path,'r') as f:
+        #file_path = os.path.join(dashboard_files_dir,dashboard_policy_type)
+        with open(dashboard_policy_type,'r') as f:
             policy_type_lines = f.readlines()
 
         class_name = "polconfig1"
@@ -411,170 +421,168 @@ class MainIndex:
         html += self.read_static_html_part_lower()
         return html
 
+def get_date():
+    dt = datetime.now()
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
 def unix_time(dt):
     return int(time.mktime(dt.timetuple()))
 
 def run_main():
-    dt = datetime.now()
     if not default_page_title:
-        print '%s WARNING 19.MainIndex.py  Page title is not set.' % dt.strftime(dformat)
+        print '%s WARNING 19.MainIndex.py  Page title is not set.' % get_date()
         app_logger.log_warning('Page title is not set!')
 
 # Policy Type
-    dashboard_policy_type_file_path = os.path.join(dashboard_files_dir,dashboard_policy_type)
-    if not os.path.isfile(dashboard_policy_type_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_policy_type_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_policy_type_file_path)
-
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_policy_type_file_path = os.path.join(dashboard_files_dir,dashboard_policy_type)
+    if not os.path.isfile(dashboard_policy_type):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_policy_type)
+        app_logger.log_error('%s is not a valid file.' % dashboard_policy_type)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
 # Billing
-    dashboard_billing_file_path = os.path.join(dashboard_files_dir,dashboard_billing_file)
-    if not os.path.isfile(dashboard_billing_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_billing_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_billing_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_billing_file_path = os.path.join(dashboard_files_dir,dashboard_billing_file)
+    if not os.path.isfile(dashboard_billing_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_billing_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_billing_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
 # Open Actions
-    dashboard_liveview_file_path = os.path.join(dashboard_files_dir,dashboard_liveview_file)
-    if not os.path.isfile(dashboard_liveview_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_liveview_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_liveview_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_liveview_file_path = os.path.join(dashboard_files_dir,dashboard_liveview_file)
+    if not os.path.isfile(dashboard_liveview_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_liveview_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_liveview_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_historyview_file_path = os.path.join(dashboard_files_dir,dashboard_historyview_file)
-    if not os.path.isfile(dashboard_historyview_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_historyview_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_historyview_file_path)
-
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_historyview_file_path = os.path.join(dashboard_files_dir,dashboard_historyview_file)
+    if not os.path.isfile(dashboard_historyview_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_historyview_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_historyview_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_monthly_view_file_path = os.path.join(dashboard_files_dir,dashboard_monthly_view_file)
-    if not os.path.isfile(dashboard_monthly_view_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_monthly_view_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_monthly_view_file_path)
-
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_monthly_view_file_path = os.path.join(dashboard_files_dir,dashboard_monthly_view_file)
+    if not os.path.isfile(dashboard_monthly_view_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_monthly_view_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_monthly_view_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_weeklyview_file_path = os.path.join(dashboard_files_dir,dashboard_weeklyview_file)
-    if not os.path.isfile(dashboard_weeklyview_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_weeklyview_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_weeklyview_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_weeklyview_file_path = os.path.join(dashboard_files_dir,dashboard_weeklyview_file)
+    if not os.path.isfile(dashboard_weeklyview_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_weeklyview_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_weeklyview_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_backup_variance_file_path = os.path.join(dashboard_files_dir,dashboard_backup_variance_file)
-    if not os.path.isfile(dashboard_backup_variance_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backup_variance_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backup_variance_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_backup_variance_file_path = os.path.join(dashboard_files_dir,dashboard_backup_variance_file)
+    if not os.path.isfile(dashboard_backup_variance_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_backup_variance_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_backup_variance_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_notdefined_file_path = os.path.join(dashboard_files_dir,dashboard_notdefined_file)
-    if not os.path.isfile(dashboard_notdefined_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_notdefined_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_notdefined_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_notdefined_file_path = os.path.join(dashboard_files_dir,dashboard_notdefined_file)
+    if not os.path.isfile(dashboard_notdefined_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_notdefined_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_notdefined_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
 # Infrastructure Details
-    dashboard_policy_file_path = os.path.join(dashboard_files_dir,dashboard_policy_file)
-    if not os.path.isfile(dashboard_policy_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_policy_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_policy_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_policy_file_path = os.path.join(dashboard_files_dir,dashboard_policy_file)
+    if not os.path.isfile(dashboard_policy_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_policy_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_policy_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_uniqclient_file_path = os.path.join(dashboard_files_dir,dashboard_uniqclient_file)
-    if not os.path.isfile(dashboard_uniqclient_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_uniqclient_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_uniqclient_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_uniqclient_file_path = os.path.join(dashboard_files_dir,dashboard_uniqclient_file)
+    if not os.path.isfile(dashboard_uniqclient_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_uniqclient_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_uniqclient_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_backup_client_file_path = os.path.join(dashboard_files_dir,dashboard_backup_client_file)
-    if not os.path.isfile(dashboard_backup_client_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backup_client_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backup_client_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_backup_client_file_path = os.path.join(dashboard_files_dir,dashboard_backup_client_file)
+    if not os.path.isfile(dashboard_backup_client_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_backup_client_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_backup_client_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_backup_size_file_path = os.path.join(dashboard_files_dir,dashboard_backup_size_file)
-    if not os.path.isfile(dashboard_backup_size_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backup_size_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backup_size_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_backup_size_file_path = os.path.join(dashboard_files_dir,dashboard_backup_size_file)
+    if not os.path.isfile(dashboard_backup_size_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_backup_size_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_backup_size_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_catalog_file_path = os.path.join(dashboard_files_dir,dashboard_catalog_file)
-    if not os.path.isfile(dashboard_catalog_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_catalog_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_catalog_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_catalog_file_path = os.path.join(dashboard_files_dir,dashboard_catalog_file)
+    if not os.path.isfile(dashboard_catalog_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_catalog_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_catalog_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
-    dashboard_backuptime_file_path = os.path.join(dashboard_files_dir,dashboard_backuptime_file)
-    if not os.path.isfile(dashboard_backuptime_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backuptime_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backuptime_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_backuptime_file_path = os.path.join(dashboard_files_dir,dashboard_backuptime_file)
+    if not os.path.isfile(dashboard_backuptime_file):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_backuptime_file)
+        app_logger.log_error('%s is not a valid file.' % dashboard_backuptime_file)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
 # Backup Issues
-    dashboard_backup_issue_file_path = os.path.join(dashboard_files_dir,dashboard_backup_issue)
-    if not os.path.isfile(dashboard_backup_issue_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backup_issue_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backup_issue_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_backup_issue_file_path = os.path.join(dashboard_files_dir,dashboard_backup_issue)
+    if not os.path.isfile(dashboard_backup_issue):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_backup_issue)
+        app_logger.log_error('%s is not a valid file.' % dashboard_backup_issue)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
 # Backup Usage
-    dashboard_backup_usage_file_path = os.path.join(dashboard_files_dir,dashboard_backup_usage)
-    if not os.path.isfile(dashboard_backup_usage_file_path):
-        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backup_usage_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backup_usage_file_path)
-        print '%s INFO 19.MainIndex.py  Exiting program...' % dt.strftime(dformat)
+    #dashboard_backup_usage_file_path = os.path.join(dashboard_files_dir,dashboard_backup_usage)
+    if not os.path.isfile(dashboard_backup_usage):
+        print '%s ERROR 19.MainIndex.py  %s is not a valid file.' % (get_date(), dashboard_backup_usage)
+        app_logger.log_error('%s is not a valid file.' % dashboard_backup_usage)
+        print '%s INFO 19.MainIndex.py  Exiting program...' % get_date()
         app_logger.log_info('Exiting program...')
         return
 
     main_index_obj = MainIndex()
     html = main_index_obj.generate_html_page()
-    dt = datetime.now()
-    print '%s INFO 19.MainIndex.py  Output is saving to: %s' % (dt.strftime(dformat), default_html_output_file_path)
+
+    print '%s INFO 19.MainIndex.py  Output is saving to: %s' % (get_date(), default_html_output_file_path)
     app_logger.log_info('Output is saving to: %s' % default_html_output_file_path)
 
     with open(default_html_output_file_path,'w') as f:
         f.write(html)
 
-    dt = datetime.now()
-    print '%s INFO 19.MainIndex.py  Output Saved!' % dt.strftime(dformat)
+    print '%s INFO 19.MainIndex.py  Output Saved!' % get_date()
     app_logger.log_info('Output Saved!')
 
 if __name__ == "__main__":
-    dt = datetime.now()
-    print '%s INFO 19.MainIndex.py  Program is starting...' % dt.strftime(dformat)
+    print '%s INFO 19.MainIndex.py  Program is starting...' % get_date()
     app_logger.log_info('Program is starting...')
-    print '%s INFO 19.MainIndex.py  Started running...' % dt.strftime(dformat)
+    print '%s INFO 19.MainIndex.py  Started running...' % get_date()
     app_logger.log_info('Started running...')
     dt = datetime.now()
     start_time = unix_time(dt)
@@ -582,16 +590,14 @@ if __name__ == "__main__":
     try:
         run_main()
     except:
-        dt = datetime.now()
-        print '%s ERROR 19.MainIndex.py  Script didn\'t complete successfully.' % dt.strftime(dformat)
+        print '%s ERROR 19.MainIndex.py  Script didn\'t complete successfully.' % get_date()
         app_logger.log_error('Script didn\'t complete successfully.')
-
 
     dt = datetime.now()
     end_time = unix_time(dt)
 
-    print '%s INFO 19.MainIndex.py  Time to run %s seconds.' % (dt.strftime(dformat), str(end_time-start_time))
+    print '%s INFO 19.MainIndex.py  Time to run %s seconds.' % (get_date(), str(end_time-start_time))
     app_logger.log_info('Time to run %s seconds.' % str(end_time-start_time))
 
-    print '%s INFO 19.MainIndex.py  Ended running...' % dt.strftime(dformat)
+    print '%s INFO 19.MainIndex.py  Ended running...' % get_date()
     app_logger.log_info('Ended running...')

@@ -166,9 +166,10 @@ class HtmlGeneratorHistory:
             all_sequences = f.readlines()
 
         if not all_sequences:
-            print 'No sequence found. File %s is empty.' % all_seq_file
+            print '%s ERROR 08.LiveViewHistory2HTML.py  No sequence found. File %s is empty.' % (get_date(), all_seq_file)
             app_logger.log_error('No sequence data found. File %s is empty.' % all_seq_file)
-            print 'Exiting program...'
+            print '%s INFO 08.LiveViewHistory2HTML.py  Exiting program...' % get_date()
+            app_logger.log_info('Exiting program...')
             return
 
         all_sequences = [seq.split(',') for seq in all_sequences]
@@ -244,13 +245,16 @@ class HtmlGeneratorHistory:
             html_page += self.read_static_html_part_lower()
 
             save_file_name = seq[0].strip()+'-'+seq[1].strip()+'.html'
-            print 'Saving output to: %s' % (output_directory+save_file_name)
+            print '%s INFO 08.LiveViewHistory2HTML.py  Saving output to: %s' % (get_date(), output_directory+save_file_name)
             app_logger.log_info('Saving output to: %s' % (output_directory+save_file_name))
             with open(output_directory+save_file_name,'w') as of:
                 of.write(html_page)
         
         large_file.close()
-        
+
+def get_date():
+    dt = datetime.now()
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 def unix_time(dt):
     return int(time.mktime(dt.timetuple()))
@@ -259,42 +263,45 @@ def run_main():
     html_generator_obj = HtmlGeneratorHistory()
 
     if not os.path.isfile(input_file_name):
-        print '%s is not a valid file.' % input_file_name
+        print '%s ERROR 08.LiveViewHistory2HTML.py  %s is not a valid file.' % (get_date(), input_file_name)
         app_logger.log_error('%s is not a valid file.' % input_file_name)
         return
 
     if not os.path.isdir(output_directory):
-        print '%s is not a valid directory.' % output_directory
+        print '%s ERROR 08.LiveViewHistory2HTML.py  %s is not a valid directory.' % (get_date(), output_directory)
         app_logger.log_error('%s is not a valid directory.' % output_directory)
         return
 
     if not os.path.isfile(all_seq_file):
-        print '%s is not a valid file.' % all_seq_file
+        print '%s ERROR 08.LiveViewHistory2HTML.py  %s is not a valid file.' % (get_date(), all_seq_file)
         app_logger.log_error('%s is not a valid file.' % all_seq_file)
         return
 
     try:
         html_generator_obj.generate_html_page(input_file_name,output_directory=output_directory,all_seq_file=all_seq_file)
     except Exception,msg:
-        print 'Exception occured inside generate_html_page() method. Exception message: %s' % msg
+        print '%s ERROR 08.LiveViewHistory2HTML.py  Exception occured inside generate_html_page() method. Exception message: %s' % (get_date(), msg)
         app_logger.log_error('Exception occured inside generate_html_page() method. Exception message: %s' % msg)
 
 if __name__ == '__main__':
-    print 'Program is starting...'
+    print '%s INFO 08.LiveViewHistory2HTML.py  Program is starting...' % get_date()
     app_logger.log_info('Program is starting...')
-    print 'Started running...'
+    print '%s INFO 08.LiveViewHistory2HTML.py  Started running...' % get_date()
     app_logger.log_info('Started running...')
     dt = datetime.now()
     start_time = unix_time(dt)
 
-    run_main()
+    try:
+        run_main()
+    except:
+        print '%s ERROR 08.LiveViewHistory2HTML.py  Script didn\'t complete successfully.' % get_date()
+        app_logger.log_error('Script didn\'t complete successfully.')
 
     dt = datetime.now()
     end_time = unix_time(dt)
 
-    print 'Time to run %s seconds.' % str(end_time-start_time)
-
+    print '%s INFO 08.LiveViewHistory2HTML.py  Time to run %s seconds.' % (get_date(), str(end_time-start_time))
     app_logger.log_info('Time to run %s seconds.' % str(end_time-start_time))
 
-    print 'Ended running...'
+    print '%s INFO 08.LiveViewHistory2HTML.py  Ended running...' % get_date()
     app_logger.log_info('Ended running...')
