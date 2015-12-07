@@ -33,7 +33,7 @@ inactive_policies_data_file_path = config_vars.get('inactive_policies_data_file'
 kpi_threshold = config_vars.get('kpi_threshold')
 month_view_days_count = config_vars.get('month_view_days_count')
 week_view_days_count = config_vars.get('week_view_days_count')
-
+timetorun_file = config_vars.get('timetorun_file')
 app_logger = LoggingManager('10.HistoryView2HTML.py')
 dformat = '%Y-%m-%d %H:%M:%S'
 
@@ -53,7 +53,8 @@ class HtmlGeneratorHistoryAll:
             output_file_name = html_file_name[html_file_name.rindex("/")+1:]
         except Exception,msg:
             pass
-
+        
+        _timetorun = open(timetorun_file, 'r').readlines()[-1]
 
         html = """<!DOCTYPE html>"""
         html += """\n<html>\n    <head>\n    <meta charset="utf-8" />\n    <title>"""+page_title+"""</title>"""
@@ -76,7 +77,7 @@ class HtmlGeneratorHistoryAll:
         html += """\n});"""
         html += """\n</script>"""
         html += """\n    <table class="BackupDataTime" align="right">\n        <tbody>\n            <tr>\n            <td> Last Updated:<br>"""+str(timenow)+""" </td>"""
-        html += """\n            </tr>\n        </tbody>\n    </table>"""
+        html += """\n<td>Time to Run: <br>"""+_timetorun+"""</td>            </tr>\n        </tbody>\n    </table>"""
         html += """\n    <div id='logo'>\n        <header>\n            <div id='header'></div>\n           <div id='headerbar'></div>\n            <div>"""
         html += """\n                    <img src="img/version.png" alt="version logo" id="version"/>\n            </div>"""
         html += """\n        </header>\n                </div>\n                <nav>\n                    <ul id="menubar">"""

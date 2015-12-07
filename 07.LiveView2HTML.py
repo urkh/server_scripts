@@ -20,6 +20,7 @@ output_file_name = config_vars.get('output_file_name')
 sorted_output_file_name = config_vars.get('sorted_output_file_name')
 column_five_value = config_vars_one.get('column_five_percentage')
 timenow = datetime.now().strftime('%a %Y-%m-%d %H:%M:%S')
+timetorun_file = config_vars.get('timetorun_file')
 
 app_logger = LoggingManager('07.LiveView2HTML.py')
 
@@ -37,13 +38,14 @@ class HtmlGenerator:
 
     def generate_html_page(self,page_title='24 Hours View',input_file_name='input.txt',output_file_name='24hoursview.html',is_sorted=False):
         try:
+            _timetorun = open(timetorun_file, 'r').readlines()[-1]
             html = """<!DOCTYPE html>"""
             html += """\n<html>\n    <head>\n    <meta charset="utf-8" />\n    <title>"""+page_title+"""</title>"""
             html += """\n    <link rel="stylesheet" type="text/css" href="css/view.css">\n    </head>\n    <body>"""
             html += """\n    <div style="visibility: hidden; position: absolute; overflow: hidden; padding: 0px; width: auto; left: 0px; top: 0px; z-index: 1010;" id="WzTtDiV"></div>"""
             html += """\n    <script type="text/javascript" src="js/wz_tooltip.js"></script>"""
-            html += """\n    <table class="BackupDataTime" align="right">\n        <tbody>\n            <tr>\n            <td> Last Updated:<br>"""+str(timenow)+""" </td>"""
-            html += """\n            </tr>\n        </tbody>\n    </table>"""
+            html += """\n    <table class="BackupDataTime" align="right">\n        <tbody>\n  <tr>\n            <td> Last Updated:<br>"""+str(timenow)+""" </td>"""
+            html += """\n            <td> Time to Run: <br>"""+_timetorun+"""</td></tr>       \n        </tbody>\n    </table>"""
             html += """\n    <div id='logo'>\n        <header>\n            <div id='header'></div>\n           <div id='headerbar'></div>\n            <div>"""
             html += """\n                    <img src="img/version.png" alt="version logo" id="version"/>\n            </div>"""
             html += """\n        </header>\n                </div>\n                <nav>\n                    <ul id="menubar">"""

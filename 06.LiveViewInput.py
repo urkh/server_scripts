@@ -590,8 +590,7 @@ class Main(object):
                                 # if 'val_int' is equal to 32, then we assign
                                 # to this, the second value of 'last_day'
                                 val_int = last_day[1]
-                            dtt = datetime.date(
-                                day=val_int, month=tday_datetime.month, year=tday_datetime.year)
+                            dtt = date(day=val_int, month=tday_datetime.month, year=tday_datetime.year)
                             if all_dates.get(key):
                                 all_dates[key] += [dtt]
                             else:

@@ -21,6 +21,7 @@ history_file_path = config_vars.get('history_file_path')
 output_html_file_default = config_vars.get('output_html_path_default')
 output_csv_file_default = config_vars.get('output_csv_path_default')
 csv_report_path_default = config_vars.get('csv_report_path_default')
+timetorun_file = config_vars.get('timetorun_file')
 
 app_logger = LoggingManager('13.BackupSize2HTML.py')
 dformat = '%Y-%m-%d %H:%M:%S'
@@ -32,6 +33,7 @@ class BackupSize2HTMLGenerator:
     def get_static_html_upper(self,title,csv_path_download):
 
         timenow = datetime.now().strftime('%a %Y-%m-%d %H:%M:%S')
+        _timetorun = open(timetorun_file, 'r').readlines()[-1]
 
         html = """<!DOCTYPE html>"""
         html += """\n<html>\n   <head>\n<meta charset="utf-8" />\n      <title>"""+ title +"""</title>"""
@@ -40,7 +42,7 @@ class BackupSize2HTMLGenerator:
         html += """\n       <div style="visibility: hidden; position: absolute; overflow: hidden; padding: 0px; width: auto; left: 0px; top: 0px; z-index: 1010;" id="WzTtDiV"></div>"""
         html += """\n       <script type="text/javascript" src="js/wz_tooltip.js"></script>"""
         html += """\n       <table class="BackupDataTime" align="right">\n      <tbody>\n           <tr>"""
-        html += """\n               <td> Last Updated:<br>"""+ str(timenow) +"""\n                </td>\n           </tr>\n     </tbody>"""
+        html += """\n               <td> Last Updated:<br>"""+ str(timenow) +"""\n                </td><td>Time to Run: <br>"""+_timetorun+"""</td>\n           </tr>\n     </tbody>"""
         html += """\n       </table>\n      <div id='logo'>\n           <header>\n              <div id='header'></div>\n            <div id='headerbar'></div>"""
         html += """\n               <div>\n                 <img src="img/version.png" alt="version logo" id="version"/>"""
         html += """\n               </div>\n            </header>\n      </div>\n        <nav>\n            <ul id="menubar">"""

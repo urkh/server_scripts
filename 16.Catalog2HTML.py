@@ -12,12 +12,13 @@ from GlobalConfig import *
 config_vars = GlobalConfig.read_vars('16.Catalog2HTML')
 
 default_page_title = config_vars.get('default_page_title')
-dashboard_files_dir = config_vars.get('dashboard_files_dir')
+#dashboard_files_dir = config_vars.get('dashboard_files_dir')
+timetorun_file = config_vars.get('timetorun_file')
 default_html_output_file_path = config_vars.get('default_html_output_file_path')
 
 app_logger = LoggingManager('16.Catalog2HTML.py')
 
-catalog_file = 'dashboard-catalog-all-sorted.txt'
+catalog_file = config_vars.get('dashboard_catalog_all_sorted_file')
 dformat = '%Y-%m-%d %H:%M:%S'
 
 class MainIndex:
@@ -27,6 +28,7 @@ class MainIndex:
     def get_static_html_page_upper(self,page_title,):
 
         timenow = datetime.now().strftime('%a %Y-%m-%d %H:%M:%S')
+        _timetorun = open(timetorun_file, 'r').readlines()[-1]
 
         html = """<!DOCTYPE html>\n<html>"""
         html += """\n   <head>"""
@@ -41,6 +43,7 @@ class MainIndex:
         html += """\n               <tbody>"""
         html += """\n                   <tr>"""
         html += """\n                       <td> Last Updated:<br>""" + str(timenow) + """</td>"""
+        html += """\n                       <td> Time to Run:<br>""" + _timetorun + """</td>"""
         html += """\n                   </tr>"""
         html += """\n               </tbody>"""
         html += """\n           </table>"""
@@ -85,10 +88,8 @@ class MainIndex:
         html_data_table += """\n                    <td class="polconfighead">Status</td>"""
         html_data_table += """\n                </tr>"""
 
-        catalog_file_lines = []
-        file_path = os.path.join(dashboard_files_dir,catalog_file)
-        with open(file_path,'r') as f:
-            catalog_file_lines = f.readlines()
+        catalog_file_lines = open(catalog_file, 'r').readlines()
+        #    catalog_file_lines = f.readlines()
 
         class_name = "polconfig1"
         for line in catalog_file_lines:
@@ -147,10 +148,10 @@ def run_main():
         print '%s WARNING 16.Catalog2HTML.py  Page title is not set.' % dt.strftime(dformat)
         app_logger.log_warning('Page title is not set!')
 
-    dashboard_backup_client_file_path = os.path.join(dashboard_files_dir,catalog_file)
-    if not os.path.isfile(dashboard_backup_client_file_path):
-        print '%s ERROR 16.Catalog2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), dashboard_backup_client_file_path)
-        app_logger.log_error('%s is not a valid file.' % dashboard_backup_client_file_path)
+    #dashboard_backup_client_file_path = os.path.join(dashboard_files_dir,catalog_file)
+    if not os.path.isfile(catalog_file):
+        print '%s ERROR 16.Catalog2HTML.py  %s is not a valid file.' % (dt.strftime(dformat), catalog_file)
+        app_logger.log_error('%s is not a valid file.' % catalog_file)
         print '%s INFO 16.Catalog2HTML.py  Exiting program...' % dt.strftime(dformat)
         app_logger.log_info('Exiting program...')
         return
