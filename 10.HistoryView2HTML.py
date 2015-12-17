@@ -76,21 +76,44 @@ class HtmlGeneratorHistoryAll:
         html += """\n	});"""
         html += """\n});"""
         html += """\n</script>"""
-        html += """\n    <table class="BackupDataTime" align="right">\n        <tbody>\n            <tr>\n            <td> Last Updated:<br>"""+str(timenow)+""" </td>"""
-        html += """\n<td>Time to Run: <br>"""+_timetorun+"""</td>            </tr>\n        </tbody>\n    </table>"""
-        html += """\n    <div id='logo'>\n        <header>\n            <div id='header'></div>\n           <div id='headerbar'></div>\n            <div>"""
-        html += """\n                    <img src="img/version.png" alt="version logo" id="version"/>\n            </div>"""
-        html += """\n        </header>\n                </div>\n                <nav>\n                    <ul id="menubar">"""
-        html += """\n                        <li><a href="./index.html">Dashboard</a></li>"""
-        html += """\n                        <li><a href="./liveview.html">Live View</a></li>"""
-        html += """\n                        <li><a href="./historyview.html" class="selected">History View</a></li>"""
-        html += """\n                        <li><a href="./monthlyview.html">Monthly View</a></li>"""
-        html += """\n                        <li><a href="./weeklyview.html">Weekly View</a></li>"""
-        html += """\n                        <li><a href="./help.html">Help</a></li>"""
-        html += """\n                    </ul>"""
-        html += """\n                </nav>"""
+        html += """\n  <header>"""
+        html += """\n    <table class="BackupTimeRun" align="right">"""
+        html += """\n      <tbody>"""
+        html += """\n        <tr>"""
+        html += """\n          <td>Time to Run: <br>""" + _timetorun + """</td>"""
+        html += """\n        </tr>"""
+        html += """\n      </tbody>"""
+        html += """\n    </table>"""
+        html += """\n    <table class="BackupDataTime" align="right">"""
+        html += """\n      <tbody>"""
+        html += """\n        <tr>"""
+        html += """\n          <td> Last Updated:<br>""" + str(timenow) + """</td>"""
+        html += """\n        </tr>"""
+        html += """\n      </tbody>"""
+        html += """\n    </table>"""
+        html += """\n    <div id='logo'>"""
+        html += """\n      <header>"""
+        html += """\n        <div id='header'></div>"""
+        html += """\n        <div id='headerbar'></div>"""
+        html += """\n        <div>"""
+        html += """\n          <img src="img/version.png" alt="version logo" id="version"/>"""
+        html += """\n        </div>"""
+        html += """\n      </header>"""
+        html += """\n    </div>"""
+        html += """\n    <nav>"""
+        html += """\n      <ul id="menubar">"""
+        html += """\n        <li><a href="./index.html">Dashboard</a></li>"""
+        html += """\n        <li><a href="./liveview.html">Live View</a></li>"""
+        html += """\n        <li><a href="./historyview.html" class="selected">History View</a></li>"""
+        html += """\n        <li><a href="./monthlyview.html">Monthly View</a></li>"""
+        html += """\n        <li><a href="./weeklyview.html">Weekly View</a></li>"""
+        html += """\n        <li><a href="./help.html">Help</a></li>"""
+        html += """\n      </ul>"""
+        html += """\n    </nav>"""
         html += """\n    <div id='body'></div>"""
-        html += """\n    <p>\n    <a href='""" + csv_report_file_name + """' style="text-decoration: underline; float: right">csv download</a>\n    </p>"""
+        html += """\n    <p>"""
+        html += """\n      <a href='""" + csv_report_file_name + """' style="text-decoration: underline; float: right">csv download</a>"""
+        html += """\n    </p>"""
 
         return html
 
@@ -174,12 +197,7 @@ class HtmlGeneratorHistoryAll:
         """ First read the lowest date from earliest_date.txt file which contains the date as 2014-06-20 03:01:01 format. """
 
         csv_contents = []
-        nopolicy_data = open(nopolicy_data_file_path, 'r').readlines()
-        temp_nopolicy_data = []
-        for nop in nopolicy_data:
-            temp_nopolicy_data.append({'policy': nop.split(',')[0] + ',' + nop.split(',')[1], 'policy_date': datetime.fromtimestamp(int(nop.split(',')[2])).strftime('%Y-%m-%d')})
-
-
+        
         #import ipdb; ipdb.set_trace()
 
         earliest_date = None
@@ -297,6 +315,21 @@ class HtmlGeneratorHistoryAll:
                     if not policy_server_exist:
                         inactive_policies_dict[entry_date] += [data_row]
 
+        # read nopolicy datafile
+        temp_nopolicy_data = {}
+        nopolicy_data = open(nopolicy_data_file_path, 'r').readlines()
+        for nop in nopolicy_data:
+            entry_date = datetime.fromtimestamp(int(nop.split(',')[2])).date()
+            policy_name = nop.split(',')[0].strip()
+            server_name = nop.split(',')[1].strip()
+            data_row = [policy_name, server_name]
+            if not temp_nopolicy_data.get(entry_date):
+                temp_nopolicy_data[entry_date] = [data_row]
+            else:
+                tmp_np = temp_nopolicy_data[entry_date]
+                tmp_np.append(data_row)
+
+
         html = self.get_static_html_part_upper(page_title,csv_report_file_name,output_file_name)
 
         html += """\n<table class="BackupData2">"""
@@ -357,6 +390,12 @@ class HtmlGeneratorHistoryAll:
                             value = 'HNoNewBackup'
                         else:
                             value = 'HNoBackup'
+                            nop_server_rows = temp_nopolicy_data.get(target_date_only)
+                            if nop_server_rows:
+                                for nop_server_row in nop_server_rows:
+                                    if nop_server_row[0] == policy_name and nop_server_row[1] == server_name:
+                                        value = 'HNoPolicy'
+
                             p_server_rows = noschedules_dict.get(target_date_only)
                             if p_server_rows:
                                 for p_server_row in p_server_rows:
@@ -369,6 +408,7 @@ class HtmlGeneratorHistoryAll:
                                     if pcy_server_row[0] == policy_name and pcy_server_row[1] == server_name:
                                         value = 'HInactive'
                                         pol_status = value
+
                         line = aline
             return value,line
 
@@ -450,33 +490,14 @@ class HtmlGeneratorHistoryAll:
             policy_name = seq_name.split('-')[0]
             server_name = seq_name.split('-')[1]
 
-            #policy_to_find = policy_name + ', ' + '-'.join(seq_name_split[1:])
-            policy_to_find = policy_name + ', ' + server_name
-
-            strf_dates = [x.strftime('%Y-%m-%d') for x in dates]
-            pol_found = False
-
             """ Now we have unique lines in sequence lines. """
             for i,each_col_date in enumerate(dates):
-
                 calc_value = get_value_for_date(policy_name, server_name, unique_items, each_col_date)
-                
-                if any(x['policy'] == policy_to_find for x in temp_nopolicy_data) and {'policy':policy_to_find, 'policy_date':strf_dates[i]} in temp_nopolicy_data:
-                    calc_value = list(calc_value)
-                    #import ipdb; ipdb.set_trace()
-                    calc_value[0] = 'HNoPolicy'
-                    calc_value = tuple(calc_value)
-                    pol_found = True
-
                 row += [calc_value[0]]
                 value_lines[i] = calc_value
 
-            if pol_found:
-                total_count = row.count('HNoPolicy')
-            else:
-                total_count = row.count('HFull') + row.count('ExpHFull') + row.count('HIncr') + row.count('ExpHIncr') + row.count('HNoBackup')
+            total_count = row.count('HFull') + row.count('ExpHFull') + row.count('HIncr') + row.count('ExpHIncr') + row.count('HNoBackup')
             fresh_count = row.count('HFull') + row.count('ExpHFull') + row.count('HIncr') + row.count('ExpHIncr')
-            #import ipdb; ipdb.set_trace()
 
             # calculate the kpi
             kpi_val = 100
@@ -517,12 +538,6 @@ class HtmlGeneratorHistoryAll:
 
             csv_data_row = [seq_name_split[0].strip(),'-'.join(seq_name_split[1:]),kpi_value,backup_size_gb]
 
-            
-
-
-
-
-            #import ipdb; ipdb.set_trace()
             for i,value in enumerate(row):
                 data_line_val = value_lines.get(i)
                 data_line = data_line_val[1]
@@ -534,11 +549,9 @@ class HtmlGeneratorHistoryAll:
                     row_str += """\n<td class="HNoBackup">-</td>"""
                     csv_data_row += ['NoBackup']
  
-                #elif any(x['policy'] == policy_to_find for x in temp_nopolicy_data) and {'policy':policy_to_find, 'policy_date':strf_dates[i]} in temp_nopolicy_data:
                 elif value == 'HNoPolicy':
                     row_str += """\n<td class="HNoPolicy">-</td>"""
                     csv_data_row += ['NoPolicy']
-                    #else:
                 elif value == 'HNoSchedule':
                     row_str += """\n<td class="HNoSchedule">-</td>"""
                     csv_data_row += ['NoSchedule']
@@ -549,8 +562,6 @@ class HtmlGeneratorHistoryAll:
                     row_str += """\n<td class="HInactive">-</td>"""
                     csv_data_row += ['HInactive']
                 else:
-                    #import ipdb; ipdb.set_trace()
-                    #row_str += """\n<td class="%s">-</td>""" % (value)
                     data_line = data_line.replace('\n','')
                     data_line_split = data_line.split(',')
                     incr_full = ''

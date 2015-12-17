@@ -29,7 +29,7 @@ all_seq_file_path = config_vars.get('all_seq_file_path')
 csv_report_path_default = config_vars.get("csv_report_path_default")
 billing_file_path = config_vars.get('billing_file_path')
 output_csv_path_default = config_vars.get("output_csv_path_default")
-
+timetorun_file = config_vars.get('timetorun_file')
 app_logger = LoggingManager('18.Billing.py')
 dformat = '%Y-%m-%d %H:%M:%S'
 
@@ -293,6 +293,7 @@ class Billing:
     def get_static_page_upper(self):
 
         timenow = datetime.now().strftime('%a %Y-%m-%d %H:%M:%S')
+        _timetorun = open(timetorun_file, 'r').readlines()[-1]
 
         html = """<!DOCTYPE html>"""
         html += """\n<html>"""
@@ -304,6 +305,13 @@ class Billing:
         html += """\n   <body>"""
         html += """\n       <div style="visibility: hidden; position: absolute; overflow: hidden; padding: 0px; width: auto; left: 0px; top: 0px; z-index: 1010;" id="WzTtDiV"></div>"""
         html += """\n       <script type="text/javascript" src="js/wz_tooltip.js"></script>"""
+        html += """\n       <table class="BackupTimeRun" align="right">"""
+        html += """\n         <tbody>"""
+        html += """\n           <tr>"""
+        html += """\n             <td>Time to Run:<br>""" + _timetorun + """</td>"""
+        html += """\n           </tr>"""
+        html += """\n         </tbody>"""
+        html += """\n       </table>"""
         html += """\n       <table class="BackupDataTime" align="right">"""
         html += """\n           <tbody>"""
         html += """\n               <tr>"""
@@ -588,11 +596,11 @@ if __name__ == "__main__":
     dt = datetime.now()
     end_time = unix_time(dt)
     
-    try:
-        run_main()
-    except:
-        print '%s ERROR 18.Billing.py  Script didn\'t complete successfully.' % dt.strftime('%Y-%m-%d %H:%M:%S')
-        app_logger.log_error('Script didn\'t complete successfully.')
+    #try:
+    run_main()
+    #except:
+    #    print '%s ERROR 18.Billing.py  Script didn\'t complete successfully.' % dt.strftime('%Y-%m-%d %H:%M:%S')
+    #    app_logger.log_error('Script didn\'t complete successfully.')
         
     dt = datetime.now()
     print '%s INFO 18.Billing.py  Time to run %s seconds.' % (dt.strftime(dformat), str(end_time-start_time))

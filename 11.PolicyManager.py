@@ -24,6 +24,7 @@ calendar_policy_file = config_vars.get('calendar_policy_file')
 policy_calendar_html_dir = config_vars.get('policy_calendar_html_dir')
 
 app_logger = LoggingManager('11.PolicyManager.py')
+timetorun_file = config_vars.get('timetorun_file')
 dformat = '%Y-%m-%d %H:%M:%S'
 
 class FileHandler:
@@ -122,17 +123,30 @@ class PolicyManager:
     def __init__(self):
         pass
 
-    def get_static_html_part_upper(self,page_title,csv_report_file_name):
+    def get_static_html_part_upper(self,page_title, csv_report_file_name):
 
         timenow = datetime.now().strftime('%a %Y-%m-%d %H:%M:%S')
+        _timetorun = open(timetorun_file, 'r').readlines()[-1]
 
         html = """<!DOCTYPE html>"""
         html += """\n<html>\n    <head>\n    <meta charset="utf-8" />\n    <title>"""+page_title+"""</title>"""
         html += """\n    <link rel="stylesheet" type="text/css" href="css/view.css">\n    </head>\n    <body>"""
         html += """\n    <div style="visibility: hidden; position: absolute; overflow: hidden; padding: 0px; width: auto; left: 0px; top: 0px; z-index: 1010;" id="WzTtDiV"></div>"""
         html += """\n    <script type="text/javascript" src="js/wz_tooltip.js"></script>"""
-        html += """\n    <table class="BackupDataTime" align="right">\n        <tbody>\n            <tr>\n            <td> Last Updated:<br>"""+str(timenow)+""" </td>"""
-        html += """\n            </tr>\n        </tbody>\n    </table>"""
+        html += """\n    <table class="BackupTimeRun" align="right">"""
+        html += """\n      <tbody>"""
+        html += """\n        <tr>"""
+        html += """\n          <td>Time to Run:<br>""" + _timetorun + """</td>"""
+        html += """\n        </tr>"""
+        html += """\n      </tbody>"""
+        html += """\n    </table>"""
+        html += """\n    <table class="BackupDataTime" align="right">"""
+        html += """\n      <tbody>"""
+        html += """\n        <tr>"""
+        html += """\n          <td> Last Updated:<br>"""+str(timenow)+""" </td>"""
+        html += """\n        </tr>"""
+        html += """\n      </tbody>"""
+        html += """\n    </table>"""
         html += """\n    <div id='logo'>\n        <header>\n            <div id='header'></div>\n            <div id='headerbar'></div>\n            <div>"""
         html += """\n                    <img src="img/version.png" alt="version logo" id="version"/>\n            </div>"""
         html += """\n        </header>\n                </div>\n                <nav>\n                    <ul id="menubar">"""

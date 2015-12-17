@@ -16,10 +16,12 @@ config_vars = GlobalConfig.read_vars('13.BackupSize2HTML')
 
 default_page_title = config_vars.get('default_page_title')
 report_size_count = config_vars.get('report_size_count')
+report_size_count_csv = config_vars.get('report_size_count_csv')
 variance_value = config_vars.get('variance_value')
 history_file_path = config_vars.get('history_file_path')
 output_html_file_default = config_vars.get('output_html_path_default')
 output_csv_file_default = config_vars.get('output_csv_path_default')
+output_csv_file_default2 = config_vars.get('output_csv_path_default2')
 csv_report_path_default = config_vars.get('csv_report_path_default')
 timetorun_file = config_vars.get('timetorun_file')
 
@@ -41,9 +43,21 @@ class BackupSize2HTMLGenerator:
         html += """\n   <body>"""
         html += """\n       <div style="visibility: hidden; position: absolute; overflow: hidden; padding: 0px; width: auto; left: 0px; top: 0px; z-index: 1010;" id="WzTtDiV"></div>"""
         html += """\n       <script type="text/javascript" src="js/wz_tooltip.js"></script>"""
-        html += """\n       <table class="BackupDataTime" align="right">\n      <tbody>\n           <tr>"""
-        html += """\n               <td> Last Updated:<br>"""+ str(timenow) +"""\n                </td><td>Time to Run: <br>"""+_timetorun+"""</td>\n           </tr>\n     </tbody>"""
-        html += """\n       </table>\n      <div id='logo'>\n           <header>\n              <div id='header'></div>\n            <div id='headerbar'></div>"""
+        html += """\n       <table class="BackupTimeRun" align="right">"""
+        html += """\n         <tbody>"""
+        html += """\n           <tr>"""
+        html += """\n             <td>Time to Run: <br>""" + _timetorun + """</td>"""
+        html += """\n           </tr>"""
+        html += """\n         </tbody>"""
+        html += """\n       </table>"""
+        html += """\n       <table class="BackupDataTime" align="right">"""
+        html += """\n         <tbody>"""
+        html += """\n           <tr>""" 
+        html += """\n             <td> Last Updated:<br>""" + str(timenow) + """</td>"""
+        html += """\n           </tr>"""
+        html += """\n         </tbody>"""
+        html += """\n       </table>"""
+        html += """\n      <div id='logo'>\n           <header>\n              <div id='header'></div>\n            <div id='headerbar'></div>"""
         html += """\n               <div>\n                 <img src="img/version.png" alt="version logo" id="version"/>"""
         html += """\n               </div>\n            </header>\n      </div>\n        <nav>\n            <ul id="menubar">"""
         html += """\n               <li><a href="./index.html">Dashboard</a></li>"""
@@ -108,9 +122,9 @@ class BackupSize2HTMLGenerator:
         """Lazy function (generator) to read a file piece by piece."""
         while True:
             sequence_name = None
-
+            policy_name = None
+            server_name = None
             same_sequence_found = True
-
             data_sequence = []
 
             file_object.seek(last_line_read)
@@ -132,6 +146,9 @@ class BackupSize2HTMLGenerator:
 
             if data_split:
                 sequence_name = data_split[0].strip()+'-'+data_split[1].strip()
+                policy_name = data_split[0].strip()
+                server_name = data_split[1].strip()
+
 
             while same_sequence_found:
                 file_object.seek(last_line_read)
@@ -151,8 +168,9 @@ class BackupSize2HTMLGenerator:
                     last_line_read = last_line_read + len(data)
                 else:
                     same_sequence_found = False
+            #import ipdb; ipdb.set_trace()
 
-            yield last_line_read,data_sequence,sequence_name
+            yield last_line_read, data_sequence, sequence_name, policy_name, server_name
 
     def find_current_date_last_backup_date(self,policy_name,server_name,chunk_lines,all_dates):
 
@@ -244,7 +262,12 @@ class BackupSize2HTMLGenerator:
 
         variance_val = int(cline_split[5]) - int(lline_split[5])
 
-        variance_percentage = float(variance_val)/int(lline_split[5])
+        #if int(lline_split[5]) == 0:
+        #    import ipdb; ipdb.set_trace()
+        try:
+            variance_percentage = float(variance_val)/int(lline_split[5])
+        except:
+            variance_percentage = 0
 
         variance_percentage = variance_percentage * 100
 
@@ -258,30 +281,23 @@ class BackupSize2HTMLGenerator:
         return variance_val,variance_percentage
 
 
-    def generate_dynamic_data_table(self,report_size,history_file_path,output_html_path,variance_value):
+    def generate_dynamic_data_table(self, report_size, history_file_path, variance_value):
 
         html = """\n          <table class="BackupData2">"""
         csv_contents = []
-
         report_dates = []
-
         report_dates_range = [i for i in range(int(report_size))]
-
         todays_date = datetime.now()
-
         report_dates = [todays_date+timedelta(days=-i) for i in report_dates_range]
-
         report_dates = [tdays_date.date() for tdays_date in report_dates]
-
         report_dates.sort()
 
         html += """\n               <tr>"""
-
         header_cols = ["""\n                <td class="backsizehead">Policy</td>"""]
         header_cols += ["""                 <td class="backsizehead">Server</td>"""]
         header_cols += ["""                 <td class="backsizehead">Difference*</td>"""]
         header_cols += ["""                 <td class="backsizehead">Variance**</td>"""]
-        header_cols += ["""                 <td class="backsizehead">Backup Size KB***</td>"""]
+        header_cols += ["""                 <td class="backsizehead">Backup Size GB***</td>"""]
 
         csv_header = ['Policy','Server','Variance*','Backup Size GB**']
 
@@ -292,11 +308,8 @@ class BackupSize2HTMLGenerator:
             csv_header += [csv_formatter_date]
 
         csv_contents += [csv_header]
-
         html += """\n""".join(header_cols)
-
         html += """\n               </tr>"""
-
         large_file = open(history_file_path,'r')
         last_line_read = 0
 
@@ -325,10 +338,8 @@ class BackupSize2HTMLGenerator:
                     backup_size = float(lsplit[5])
                 else:
                     backup_size += float(lsplit[5])
-
                 if int(lsplit[3]) == 0:
                     backup_full = True
-
                 col_four_val_mask = col_four_val_mask & int(lsplit[3])
 
             multiple_occurance = False
@@ -337,13 +348,9 @@ class BackupSize2HTMLGenerator:
 
             return backup_size,backup_full,multiple_occurance,col_four_val_mask
 
-        for i,(last_line_read,lines,seq_name) in enumerate(self.read_sequence_in_chunks(large_file,last_line_read)):
+        for i,(last_line_read, lines, seq_name, policy_name, server_name) in enumerate(self.read_sequence_in_chunks(large_file, last_line_read)):
             seq_name_split = seq_name.split('-')
-            pname = seq_name_split[0].strip()
-            sname = seq_name_split[1].strip()
-
             lines = [line.replace('\n','') for line in lines]
-
             lines_sorted = sorted(lines,key=lambda x: int(x.split(',')[2]))
 
             """Calculate the backup size in GB here."""
@@ -353,36 +360,30 @@ class BackupSize2HTMLGenerator:
                 col_six_val = line_split[5].strip()
                 col_six_val_sum += float(col_six_val)
 
-            backup_size_gb = float(col_six_val_sum)#/(1024*1024)
+
+            backup_size_gb = float(col_six_val_sum)/(1024*1024)
 
             class_name = """backsize1"""
             if (i + 1) % 2 == 0:
                 class_name = """backsize2"""
 
             backup_size_gb = '%.2f' % backup_size_gb
-
             data_cols = ["""\n            <tr>"""]
-
-            difference,variance_percentage = self.calculate_variance(pname,sname,lines_sorted)
-
+            difference,variance_percentage = self.calculate_variance(policy_name, server_name, lines_sorted)
             difference_size_gb = '%.2f' % difference
-
             variance_class_name = class_name
-
             variance_value = float(variance_value)
-
             math_variance_absolute = math.fabs(variance_percentage)
-
             if math_variance_absolute > variance_value:
                 variance_class_name = 'VarianceNOK'
 
             variance_percentage = str(int(variance_percentage))
+            difference_size_gb = float(difference_size_gb)/(1024*1024)
+            difference_size_gb = '%.2f' % difference_size_gb
+            csv_data_row = [policy_name, server_name, difference_size_gb, backup_size_gb]
 
-            csv_data_row = [pname,'-'.join(seq_name_split[1:]),difference_size_gb,backup_size_gb]
-            #import ipdb; ipdb.set_trace()
-
-            data_cols += ["""\n                 <td class=\"""" + class_name + """\">""" + pname + """</td>"""]
-            data_cols += ["""                   <td Class=\"""" + class_name + """\"><a href = """ + seq_name + """.html> """ + '-'.join(seq_name_split[1:]) + """ </a> </td>"""]
+            data_cols += ["""\n                 <td class=\"""" + class_name + """\">""" + policy_name + """</td>"""]
+            data_cols += ["""                   <td Class=\"""" + class_name + """\"><a href = """ + seq_name + """.html> """ + server_name + """ </a> </td>"""]
             data_cols += ["""                   <td class=\"""" + class_name + """\">""" + difference_size_gb + """</td>"""]
             data_cols += ["""                   <td class=\"""" + variance_class_name + """\">""" + variance_percentage + """%</td>"""]
             data_cols += ["""                   <td class=\"""" + class_name + """\">""" + backup_size_gb + """</td>"""]
@@ -395,14 +396,14 @@ class BackupSize2HTMLGenerator:
                     class_name = temp_class_name + 'full'
                 else:
                     class_name = temp_class_name
-
                 if multiple_occurance:
                     if col_four_val_mask == 1:
                         class_name = 'backsize1sum'
                     else:
                         class_name = 'backsize2sum'
-
                 if bsize:
+                    #import ipdb; ipdb.set_trace()
+                    bsize = float(bsize)/(1024*1024)
                     bsize_gb_str = '%0.2f' % bsize
                     data_cols += ["""                   <td class=\"""" + class_name + """\">""" + bsize_gb_str + """</td>"""]
                     csv_data_row += [bsize_gb_str]
@@ -411,16 +412,110 @@ class BackupSize2HTMLGenerator:
                     csv_data_row += ['NoData']
 
             csv_contents += [csv_data_row]
-
             data_cols += ["""           </tr>"""]
-
             html += """\n""".join(data_cols)
-
         html += """         </table>"""
-
         large_file.close()
 
         return html,csv_contents
+
+
+    def generate_dynamic_data_csv(self,report_size, history_file_path, variance_value):
+
+        csv_contents = []
+        report_dates = []
+        report_dates_range = [i for i in range(int(report_size))]
+        todays_date = datetime.now()
+        report_dates = [todays_date+timedelta(days=-i) for i in report_dates_range]
+        report_dates = [tdays_date.date() for tdays_date in report_dates]
+        report_dates.sort()
+
+        csv_header = ['Policy','Server','Variance*','Backup Size GB**']
+
+        for each_date in report_dates:
+            csv_formatter_date = each_date.strftime('%d %b, %Y')
+            csv_header += [csv_formatter_date]
+
+        csv_contents += [csv_header]
+        large_file = open(history_file_path, 'r')
+        last_line_read = 0
+
+        def get_backup_size_on_date(bdate,lines):
+            backup_size = None
+            backup_full = False
+            lines_on_date = []
+            for line in lines:
+                line = line.replace('\n','')
+                line_split = line.split(',')
+
+                target_datetime = datetime.fromtimestamp(int(line_split[2]))
+                target_date = target_datetime.date()
+
+                if bdate == target_date:
+                    lines_on_date += [line]
+                    #break
+
+            col_four_val_mask = 1
+            for l in lines_on_date:
+                lsplit = l.split(',')
+                if not backup_size:
+                    backup_size = float(lsplit[5])
+                else:
+                    backup_size += float(lsplit[5])
+
+                if int(lsplit[3]) == 0:
+                    backup_full = True
+
+                col_four_val_mask = col_four_val_mask & int(lsplit[3])
+
+            multiple_occurance = False
+            if len(lines_on_date) >= 2:
+                multiple_occurance = True
+
+            return backup_size,backup_full,multiple_occurance,col_four_val_mask
+
+        for i,(last_line_read, lines, seq_name, policy_name, server_name) in enumerate(self.read_sequence_in_chunks(large_file, last_line_read)):
+            seq_name_split = seq_name.split('-')
+
+            lines = [line.replace('\n','') for line in lines]
+            lines_sorted = sorted(lines, key=lambda x: int(x.split(',')[2]))
+
+            """Calculate the backup size in GB here."""
+            col_six_val_sum = 0.0
+            for line in lines:
+                line_split = line.split(',')
+                col_six_val = line_split[5].strip()
+                col_six_val_sum += float(col_six_val)
+
+            backup_size_gb = float(col_six_val_sum)/(1024*1024)
+            backup_size_gb = '%.2f' % backup_size_gb
+
+            difference, variance_percentage = self.calculate_variance(policy_name, server_name, lines_sorted)
+            difference_size_gb = '%.2f' % difference
+            variance_value = float(variance_value)
+            math_variance_absolute = math.fabs(variance_percentage)
+
+            variance_percentage = str(int(variance_percentage))
+            difference_size_gb = float(difference_size_gb)/(1024*1024)
+            difference_size_gb = '%.2f' % difference_size_gb
+
+            csv_data_row = [policy_name, server_name, difference_size_gb, backup_size_gb]
+        
+            for each_date in report_dates:
+                bsize,backup_full,multiple_occurance,col_four_val_mask = get_backup_size_on_date(each_date, lines_sorted)
+                
+                if bsize:
+                    bsize = float(bsize)/(1024*1024)
+                    bsize_gb_str = '%0.2f' % bsize
+                    csv_data_row += [bsize_gb_str]
+                else:
+                    csv_data_row += ['NoData']
+
+            csv_contents += [csv_data_row]
+
+        large_file.close()
+
+        return csv_contents
 
 
     def generate_html(self):
@@ -441,10 +536,13 @@ class BackupSize2HTMLGenerator:
         with open(history_file_sorted,'w') as hf:
             hf.write(history_data)
 
-        html_table,csv_contents = self.generate_dynamic_data_table(report_size_count,history_file_sorted,output_html_file_default,variance_value)
+        html_table, csv_contents = self.generate_dynamic_data_table(report_size_count, history_file_sorted, variance_value)
         html += html_table
-
         html += self.get_static_lower_html(variance_value)
+
+        #csv_contents
+        csv_contents2 = self.generate_dynamic_data_csv(report_size_count_csv, history_file_sorted, variance_value)
+
         dt = datetime.now()
 
         print '%s INFO 13.BackupSize2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), output_html_file_default)
@@ -461,12 +559,24 @@ class BackupSize2HTMLGenerator:
         if not csv_file_path.endswith('.csv'):
             csv_file_path = csv_file_path+'.csv'
 
+        csv_file_path2 = output_csv_file_default2
+        if not csv_file_path2.endswith('.csv'):
+            csv_file_path2 = csv_file_path2+'.csv'
+
         print '%s INFO 13.BackupSize2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), csv_file_path)
         app_logger.log_info('Output is saving to: %s' % csv_file_path)
+
+        print '%s INFO 13.BackupSize2HTML.py  Output is saving to: %s' % (dt.strftime(dformat), csv_file_path2)
+        app_logger.log_info('Output is saving to: %s' % csv_file_path2)
+
 
         with open(csv_file_path, 'w') as fp:
             a = csv.writer(fp, delimiter=',')
             a.writerows(csv_contents)
+
+        with open(csv_file_path2, 'w') as fp:
+            a = csv.writer(fp, delimiter=',')
+            a.writerows(csv_contents2)
 
         dt = datetime.now()
         print '%s INFO 13.BackupSize2HTML.py  Output is saved.' % dt.strftime(dformat)
@@ -487,7 +597,7 @@ def run_main():
         return
     try:
         int(report_size_count)
-    except Exception,msg:
+    except Exception, msg:
         print '%s ERROR 13.BackupSize2HTML.py  Invalid report size count found in the config file.' % dt.strftime(dformat)
         app_logger.log_error('Invalid report size count found in the config file.')
         print '%s INFO 13.BackupSize2HTML.py  Exiting program...' % dt.strftime(dformat)
@@ -521,10 +631,13 @@ if __name__ == '__main__':
 
     try:
         run_main()
-    except:
+    except Exception, msg:
+        #import ipdb; ipdb.set_trace()
         dt = datetime.now()
         print '%s ERROR 13.BackupSize2HTML.py  Script didn\'t complete successfully.' % dt.strftime(dformat)
         app_logger.log_error('Script didn\'t complete successfully.')
+        print '%s ERROR 13.BackupSize2HTML.py  ** %s **' % (dt.strftime(dformat), msg.message)
+        app_logger.log_error('** %s **' % msg.message)
 
     dt = datetime.now()
     end_time = unix_time(dt)
